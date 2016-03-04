@@ -12,3 +12,22 @@ The non-identifying relationship doesn't have a restriction about cascading the 
 Each table has its own unique identifier; neither table inherits part of its primary key from the other.
 
 mysqldump -umotdbuser -p -d mot2 | mysql -umotdbuser -p -D mot3
+
+TODO
+
+Need to extend spidering to allow for missing objects on either side of diff. e.g.
+
+table - nil
+fk - nil
+nil - field
+
+and so on.
+
+ 1 - scan the source and look for corresponding object on dest.
+ 2 - scan the dest look for new objects not on src.
+ 3 - Move the results into an object (db?) that is virtual? That way both scans can update same obj with diffs
+
+ virtual db needs to state nils on either side
+
+
+
