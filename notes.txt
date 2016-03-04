@@ -1,0 +1,13 @@
+
+Key Relationships
+
+IDENTIFYING / NON-IDENTIFYING RELATIONSHIP
+The terms identifying relationship and non-identifying relationship refer to how the primary key
+of the table on the many side is supposed to be constructed. The theory is that for identifying
+relationships, the primary key of the one table cascades down to the many table, and is concatenated
+to the identifier of the many table to form the primary key. Many CASE tools that you can use to
+draw ERDs implement this theory as a rule that you can't easily circumvent.
+
+The non-identifying relationship doesn't have a restriction about cascading the primary key.
+Each table has its own unique identifier; neither table inherits part of its primary key from the other.
+
