@@ -11,3 +11,4 @@ draw ERDs implement this theory as a rule that you can't easily circumvent.
 The non-identifying relationship doesn't have a restriction about cascading the primary key.
 Each table has its own unique identifier; neither table inherits part of its primary key from the other.
 
+mysqldump -umotdbuser -p -d mot2 | mysql -umotdbuser -p -D mot3

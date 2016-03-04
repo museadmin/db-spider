@@ -32,7 +32,7 @@ module MysqlAnalytics
 
     src_db.tables.each do |k,st|
       unless st == tgt_db.tables[st.name.to_sym]
-        tgt_db.tables[st.name.to_sym].delta = st.delta
+        tgt_db.tables[st.name.to_sym].diff = st.diff
         puts k
       end
     end
