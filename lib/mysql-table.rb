@@ -10,10 +10,10 @@ class MysqlTable
   def initialize(table_name)
     @name = table_name      # Table name
     @fields = {}            # Columns
-    @keys = {}              # Column keys from desc table. TODO deprecate?
+    @keys = {}              # Column keys from desc table.
     @constraints = {}       # Table constraint
     @migrated = false
-    @diff = MysqlDiff.new
+    #@diff = Difference.new
   end
 
   # Compare self to another table
@@ -76,5 +76,36 @@ class MysqlTable
     end
     return false if @diff.is_diff
     true
+  end
+  # Confirm if table has index on field
+  #
+  # @param name [String] Name of index
+  # @return [Boolean] True if index found
+  def has_key(name)
+    @keys.keys.each do |k|
+      return true if k == name
+    end
+    false
+  end
+  # Confirm if table has field
+  #
+  # @param name [String] Name of field
+  # @return [Boolean] True if field found
+  def has_field(name)
+    @fields.keys.each do |k|
+      return true if k == name
+    end
+    false
+  end
+
+  # Confirm if table has constraint
+  #
+  # @param name [String] Name of constraint
+  # @return [Boolean] True if constraint found
+  def has_constraint(name)
+    @constraints.keys.each do |k|
+      return true if k == name
+    end
+    false
   end
 end

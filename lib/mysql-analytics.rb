@@ -24,7 +24,7 @@ module MysqlAnalytics
     end
   end
 
-  # Analyse both DB's and create a diff for each mismatch
+  # Analyse both DB's and create a diff for each mismatched table
   #
   # @param src_db [MysqlDatabase] The source database
   # @param tgt_db [MysqlDatabase] The target database
@@ -32,6 +32,7 @@ module MysqlAnalytics
 
     src_db.tables.each do |k,st|
       unless st == tgt_db.tables[st.name.to_sym]
+        # Store the diff in the target
         tgt_db.tables[st.name.to_sym].diff = st.diff
         puts k
       end

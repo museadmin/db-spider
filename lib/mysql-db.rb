@@ -56,7 +56,7 @@ class MysqlDatabase
   # Storing it all in the tables hash
   def spider
 
-    @tables.each do |k,t|
+    @tables.values.each do |t|
 
       begin
 
@@ -67,7 +67,7 @@ class MysqlDatabase
           f.name = td[FIELD]
           f.type = td[TYPE]
           f.null = td[NULL]
-          f.key = td[KEY]
+          f.key = MysqlKey.new(td[KEY])
           f.default = td[DEFAULT]
           f.extra = td[EXTRA]
 

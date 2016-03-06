@@ -1,6 +1,6 @@
 
 
-
+# Field Mappings
 FIELD = 0
 TYPE = 1
 NULL = 2
@@ -8,6 +8,7 @@ KEY = 3
 DEFAULT = 4
 EXTRA = 5
 
+# Constraint Mappings
 CONSTRAINT_CATALOG = 0
 CONSTRAINT_SCHEMA = 1
 CONSTRAINT_NAME = 2
@@ -21,10 +22,9 @@ TABLE_NAME = 9
 REFERENCED_TABLE_NAME = 10
 
 # Diff Comparisons
+COMPARE_CONSTRAINTS = true
 COMPARE_KEYS = true
 COMPARE_KEY_COUNT = false
 COMPARE_MUL_KEY = false
 COMPARE_UNI_KEY = true
 COMPARE_PRI_KEY = true
-
-COMPARE_CONSTRAINTS = true

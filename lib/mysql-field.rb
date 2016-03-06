@@ -1,4 +1,5 @@
 require_relative 'env'
+require_relative 'mysql_key'
 
 # Encapsulate a Mysql Field
 class MysqlField

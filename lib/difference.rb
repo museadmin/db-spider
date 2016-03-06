@@ -1,7 +1,7 @@
 
-# A table diff. Holds all data required to resolve a db diff
-# DB Schema is assumed
-class MysqlDiff
+# A difference between two objects. Assumes == override in object
+# Stores both objects if different and flags is_diff = true
+class Difference
 
   attr_accessor :diffs, :is_diff
 

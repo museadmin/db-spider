@@ -4,7 +4,8 @@ require 'ostruct'
 require_relative 'lib/env'
 require_relative 'lib/mysql-analytics'
 require_relative 'lib/mysql-constraint'
-require_relative 'lib/mysql-diff'
+require_relative 'lib/db_difference'
+require_relative 'lib/difference'
 require_relative 'lib/mysql-db'
 require_relative 'lib/mysql-field'
 require_relative 'lib/mysql-select'
@@ -60,6 +61,14 @@ end
 
 # Scan tables for @diffs
 if options.diff
+  # Object to hold all differences between databases
+  @db_diff = DbDifference.new(@db_src.database, @db_tgt.database)
+  # Map the location of all table elements
+  @db_diff.locate_elements(@db_src, @db_tgt)
+
+  # TODO Now we have all the mappings for the table elements
+  # > analytics > table == > table.diff
+  # Change to db_diff > table == > db_diff.diff
   discover_diffs(@db_src, @db_tgt)
 end
 
