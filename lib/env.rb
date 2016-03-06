@@ -20,7 +20,7 @@ DELETE_RULE = 8
 TABLE_NAME = 9
 REFERENCED_TABLE_NAME = 10
 
-# Delta Comparisons
+# Diff Comparisons
 COMPARE_KEYS = true
 COMPARE_KEY_COUNT = false
 COMPARE_MUL_KEY = false

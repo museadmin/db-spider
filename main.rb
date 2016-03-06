@@ -18,8 +18,8 @@ include MysqlAnalytics
 # Parse the Args
 options = OpenStruct.new
 OptionParser.new do |opt|
-  opt.on('-d', '--delta', 'Scan for deltas against a table'
-        ){options.delta = true}
+  opt.on('-d', '--diff', 'Scan for diffs between source and target databases'
+        ){options.diff = true}
   opt.on('-q', '--query', 'Generate SQL Queries for insert, update, select and delete for table -t'
         ){options.generate = true}
   opt.on('-s', '--spider SPIDER', 'Spider the databases <true|false>'
@@ -58,9 +58,9 @@ if options.spider.nil? || options.spider == 'true'
   spider_databases(@ini_data)
 end
 
-# Scan tables for deltas
-if options.delta
-  discover_deltas(@db_src, @db_tgt)
+# Scan tables for @diffs
+if options.diff
+  discover_diffs(@db_src, @db_tgt)
 end
 
 

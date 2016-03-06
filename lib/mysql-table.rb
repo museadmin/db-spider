@@ -74,7 +74,7 @@ class MysqlTable
         end
       end
     end
-    return false if @diff.is_delta
+    return false if @diff.is_diff
     true
   end
 end

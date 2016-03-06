@@ -24,11 +24,11 @@ module MysqlAnalytics
     end
   end
 
-  # Analyse both DB's and create a delta for each mismatch
+  # Analyse both DB's and create a diff for each mismatch
   #
   # @param src_db [MysqlDatabase] The source database
   # @param tgt_db [MysqlDatabase] The target database
-  def discover_deltas(src_db, tgt_db)
+  def discover_diffs(src_db, tgt_db)
 
     src_db.tables.each do |k,st|
       unless st == tgt_db.tables[st.name.to_sym]
