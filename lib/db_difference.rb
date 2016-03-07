@@ -28,7 +28,7 @@ class DbDifference
   def locate_elements(src_db, tgt_db)
     get_table_locations(src_db, tgt_db)
     get_field_locations(src_db, tgt_db)
-    get_fk_locations(src_db, tgt_db)
+    get_fk_locations(src_db, tgt_db, 'constraint', DF_FKEY)
     get_key_locations(src_db, tgt_db)
   end
 
@@ -71,23 +71,26 @@ class DbDifference
     end
   end
 
-  # Capture where foreign keys are located
+  # Capture where table elements are located
   #
   # @param src_db [MysqlDatabase] The source database
   # @param tgt_db [MysqlDatabase] The target database
-  def get_fk_locations(src_db, tgt_db)
+  # @param element [String] Name of element to map
+  # @param index [String] Index to locations hash
+  def get_fk_locations(src_db, tgt_db, element, index)
     # For each table
     @locations.keys.each do |t|
       # Create a unique sorted and merged list of foreign key names from both dbs
       # Use tmp hash to get sort behaviour
       fk = {}
       if @locations[t.to_sym][DF_SRC]
-        src_db.tables[t.to_sym].constraints.keys.each do |k|
+        #src_db.tables[t.to_sym].constraints.keys.each do |k|
+        src_db.tables[t.to_sym].send("#{element}s".to_sym).keys.each do |k|
           fk[k] = nil
         end
       end
       if @locations[t.to_sym][DF_TGT]
-        tgt_db.tables[t.to_sym].constraints.keys.each do |k|
+        tgt_db.tables[t.to_sym].send("#{element}s".to_sym).keys.each do |k|
           fk[k] = nil
         end
       end
@@ -99,14 +102,14 @@ class DbDifference
         # Map if fk exists in both tables
         fd = Array[false, false]
         unless src_db.tables[t].nil?
-          fd[DF_SRC] = true if src_db.tables[t].has_constraint(k)
+          fd[DF_SRC] = true if src_db.tables[t].send("has_#{element}".to_sym, k)
         end
         unless tgt_db.tables[t].nil?
-          fd[DF_TGT] = true if tgt_db.tables[t].has_constraint(k)
+          fd[DF_TGT] = true if tgt_db.tables[t].send("has_#{element}".to_sym, k)
         end
         tfk[k] = fd
       end
-      @locations[t][DF_FKEY] = tfk
+      @locations[t][index] = tfk
     end
   end
   # Capture where table fields are located

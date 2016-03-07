@@ -13,7 +13,7 @@ class MysqlTable
     @keys = {}              # Column keys from desc table.
     @constraints = {}       # Table constraint
     @migrated = false
-    #@diff = Difference.new
+    @diff = Difference.new
   end
 
   # Compare self to another table
