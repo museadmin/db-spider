@@ -11,6 +11,8 @@ DF_FLD = 4
 # src and tgt db's.
 class DbDifference
 
+  attr_accessor :locations, :diffs
+
   # Constructor
   #
   # @param src_db [MysqlDatabase] The source database
@@ -19,6 +21,7 @@ class DbDifference
     @src_db = src_db
     @tgt_db = tgt_db
     @locations = {} # [src,tgt,fk,k,fld]
+    @diffs = {}
   end
 
   # Capture all differences between two databases
@@ -28,14 +31,15 @@ class DbDifference
   def locate_elements(src_db, tgt_db)
     get_table_locations(src_db, tgt_db)
     get_field_locations(src_db, tgt_db)
-    get_fk_locations(src_db, tgt_db, 'constraint', DF_FKEY)
+    get_fk_locations(src_db, tgt_db)
     get_key_locations(src_db, tgt_db)
   end
 
-  # Capture where keys are located
+  # Capture where indexed keys are located
   #
   # @param src_db [MysqlDatabase] The source database
   # @param tgt_db [MysqlDatabase] The target database
+  private
   def get_key_locations(src_db, tgt_db)
     # For each table
     @locations.keys.each do |t|
@@ -71,13 +75,12 @@ class DbDifference
     end
   end
 
-  # Capture where table elements are located
+  # Capture where table constraints are located
   #
   # @param src_db [MysqlDatabase] The source database
   # @param tgt_db [MysqlDatabase] The target database
-  # @param element [String] Name of element to map
-  # @param index [String] Index to locations hash
-  def get_fk_locations(src_db, tgt_db, element, index)
+  private
+  def get_fk_locations(src_db, tgt_db)
     # For each table
     @locations.keys.each do |t|
       # Create a unique sorted and merged list of foreign key names from both dbs
@@ -85,12 +88,12 @@ class DbDifference
       fk = {}
       if @locations[t.to_sym][DF_SRC]
         #src_db.tables[t.to_sym].constraints.keys.each do |k|
-        src_db.tables[t.to_sym].send("#{element}s".to_sym).keys.each do |k|
+        src_db.tables[t.to_sym].constraints.keys.each do |k|
           fk[k] = nil
         end
       end
       if @locations[t.to_sym][DF_TGT]
-        tgt_db.tables[t.to_sym].send("#{element}s".to_sym).keys.each do |k|
+        tgt_db.tables[t.to_sym].constraints.keys.each do |k|
           fk[k] = nil
         end
       end
@@ -102,20 +105,21 @@ class DbDifference
         # Map if fk exists in both tables
         fd = Array[false, false]
         unless src_db.tables[t].nil?
-          fd[DF_SRC] = true if src_db.tables[t].send("has_#{element}".to_sym, k)
+          fd[DF_SRC] = true if src_db.tables[t].has_constraint(k)
         end
         unless tgt_db.tables[t].nil?
-          fd[DF_TGT] = true if tgt_db.tables[t].send("has_#{element}".to_sym, k)
+          fd[DF_TGT] = true if tgt_db.tables[t].has_constraint(k)
         end
         tfk[k] = fd
       end
-      @locations[t][index] = tfk
+      @locations[t][DF_FKEY] = tfk
     end
   end
   # Capture where table fields are located
   #
   # @param src_db [MysqlDatabase] The source database
   # @param tgt_db [MysqlDatabase] The target database
+  private
   def get_field_locations(src_db, tgt_db)
 
     # For each table

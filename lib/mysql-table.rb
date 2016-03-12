@@ -13,43 +13,44 @@ class MysqlTable
     @keys = {}              # Column keys from desc table.
     @constraints = {}       # Table constraint
     @migrated = false
-    @diff = Difference.new
   end
 
   # Compare self to another table
   # Key comparison controlled from env.rb
   #
   # @param table [MysqlTable] The table for comparison
-  def ==(table)
+  def map_diffs(table, db_diff)
 
-    @diff.test_diff(self.name, table.name, 'table_name')
-    @diff.test_diff(self.fields.size, table.fields.size, 'fields_size')
+    diff = Difference.new(@name)
+
+    diff.test_diff(self.name, table.name, 'table_name')
+    diff.test_diff(self.fields.size, table.fields.size, 'fields_size')
 
     @fields.values.each do |v|
       unless table.fields[v.name.to_sym].nil?
-        @diff.test_diff(v.name, table.fields[v.name.to_sym].name, 'field_name')
-        @diff.test_diff(v.type, table.fields[v.name.to_sym].type, 'field_type')
-        @diff.test_diff(v.null, table.fields[v.name.to_sym].null, 'field_nullable')
-        @diff.test_diff(v.default, table.fields[v.name.to_sym].default, 'field_default')
-        @diff.test_diff(v.extra, table.fields[v.name.to_sym].extra, 'field_extra')
+        diff.test_diff(v.name, table.fields[v.name.to_sym].name, 'field_name')
+        diff.test_diff(v.type, table.fields[v.name.to_sym].type, 'field_type')
+        diff.test_diff(v.null, table.fields[v.name.to_sym].null, 'field_nullable')
+        diff.test_diff(v.default, table.fields[v.name.to_sym].default, 'field_default')
+        diff.test_diff(v.extra, table.fields[v.name.to_sym].extra, 'field_extra')
 
         if COMPARE_KEYS # Keys in field object, not table
 
-           @diff.test_diff(self.keys.keys.size, table.keys.keys.size, 'number_of_keys') if COMPARE_KEY_COUNT
+           diff.test_diff(self.keys.keys.size, table.keys.keys.size, 'number_of_keys') if COMPARE_KEY_COUNT
 
             if COMPARE_MUL_KEY
               if v.key == 'MUL' || table.fields[v.name.to_sym].key == 'MUL'
-                @diff.test_diff(v.key, table.fields[v.name.to_sym].key, 'key')
+                diff.test_diff(v.key.type, table.fields[v.name.to_sym].key.type, 'key')
               end
             end
             if COMPARE_UNI_KEY
               if v.key == 'UNI' || table.fields[v.name.to_sym].key == 'UNI'
-                @diff.test_diff(v.key, table.fields[v.name.to_sym].key, 'key')
+                diff.test_diff(v.key.type, table.fields[v.name.to_sym].key.type, 'key')
               end
             end
             if COMPARE_PRI_KEY
               if v.key == 'PRI' || table.fields[v.name.to_sym].key == 'PRI'
-                @diff.test_diff(v.key, table.fields[v.name.to_sym].key, 'key')
+                diff.test_diff(v.key.type, table.fields[v.name.to_sym].key.type, 'key')
               end
             end
 
@@ -59,22 +60,25 @@ class MysqlTable
 
     # Compare constraints
     if COMPARE_CONSTRAINTS
-      @diff.test_diff(self.constraints.size, table.constraints.size, 'number_of_constraints')
+      diff.test_diff(self.constraints.size, table.constraints.size, 'number_of_constraints')
 
       @constraints.each do |k,c|
         unless table.constraints[k.to_sym].nil?
-          @diff.test_diff(c.constraint_name, table.constraints[k.to_sym].constraint_name, 'constraint_name')
-          @diff.test_diff(c.constraint_catalog, table.constraints[k.to_sym].constraint_catalog, 'constraint_catalog')
-          @diff.test_diff(c.unique_constraint_catalog, table.constraints[k.to_sym].unique_constraint_catalog,
+          diff.test_diff(c.constraint_name, table.constraints[k.to_sym].constraint_name, 'constraint_name')
+          diff.test_diff(c.constraint_catalog, table.constraints[k.to_sym].constraint_catalog, 'constraint_catalog')
+          diff.test_diff(c.unique_constraint_catalog, table.constraints[k.to_sym].unique_constraint_catalog,
                           'unique_constraint_catalog')
-          @diff.test_diff(c.match_option, table.constraints[k.to_sym].match_option, 'constraint_match_option')
-          @diff.test_diff(c.delete_rule, table.constraints[k.to_sym].delete_rule, 'constraint_delete_rule')
-          @diff.test_diff(c.table_name, table.constraints[k.to_sym].table_name, 'constraint_table_name')
-          @diff.test_diff(c.referenced_table_name, table.constraints[k.to_sym].referenced_table_name, 'constraint_referenced_table_name')
+          diff.test_diff(c.match_option, table.constraints[k.to_sym].match_option, 'constraint_match_option')
+          diff.test_diff(c.delete_rule, table.constraints[k.to_sym].delete_rule, 'constraint_delete_rule')
+          diff.test_diff(c.table_name, table.constraints[k.to_sym].table_name, 'constraint_table_name')
+          diff.test_diff(c.referenced_table_name, table.constraints[k.to_sym].referenced_table_name, 'constraint_referenced_table_name')
         end
       end
     end
-    return false if @diff.is_diff
+    if diff.is_diff
+      db_diff.diffs[@name] = diff
+      return false
+    end
     true
   end
   # Confirm if table has index on field
@@ -108,4 +112,5 @@ class MysqlTable
     end
     false
   end
+
 end

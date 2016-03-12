@@ -5,9 +5,10 @@ class Difference
 
   attr_accessor :diffs, :is_diff
 
-  def initialize
+  def initialize(table_name)
     @diffs = {}
     @is_diff = false
+    @table_name = table_name
   end
 
   def test_diff(arg1, arg2, type)

@@ -28,13 +28,12 @@ module MysqlAnalytics
   #
   # @param src_db [MysqlDatabase] The source database
   # @param tgt_db [MysqlDatabase] The target database
-  def discover_diffs(src_db, tgt_db)
+  def discover_diffs(src_db, tgt_db, db_diff)
 
-    src_db.tables.each do |k,st|
-      unless st == tgt_db.tables[st.name.to_sym]
-        # Store the diff in the target
-        tgt_db.tables[st.name.to_sym].diff = st.diff
-        puts k
+    db_diff.locations.each do |k,v|
+      # if src and tgt
+      if src_db.has_table(k) && tgt_db.has_table(k)
+        src_db.tables[k].map_diffs(tgt_db.tables[k], db_diff)
       end
     end
   end

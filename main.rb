@@ -30,8 +30,6 @@ OptionParser.new do |opt|
 end.parse!
 
 # Start
-@db_src = nil
-@db_tgt = nil
 
 # get the ini file configuration settings
 @ini_data = load_cfg
@@ -40,18 +38,11 @@ end.parse!
 @cxns = create_cxns(@ini_data)
 
 # Set source and destination DB
-if @ini_data[:db1]['role'] == 'source'
-  @db_src = @cxns[:db1]
-  @db_tgt = @cxns[:db2]
-  raise 'Failed to parse source and destination DBs from config' unless
-      @ini_data[:db2]['role'] == 'destination'
-elsif @ini_data[:db2]['role'] == 'source'
+@db_src = @cxns[:db1]
+@db_tgt = @cxns[:db2]
+if @ini_data[:db2]['role'] == 'source'
   @db_src = @cxns[:db2]
   @db_tgt = @cxns[:db1]
-  raise 'Failed to parse source and destination DBs from config' unless
-      @ini_data[:db1]['role'] == 'destination'
-else
-  raise 'Failed to parse source and destination DBs from config'
 end
 
 # Spider the DB's
@@ -69,7 +60,7 @@ if options.diff
   # TODO Now we have all the mappings for the table elements
   # > analytics > table == > table.diff
   # Change to db_diff > table == > db_diff.diff
-  discover_diffs(@db_src, @db_tgt)
+  discover_diffs(@db_src, @db_tgt, @db_diff)
 end
 
 
