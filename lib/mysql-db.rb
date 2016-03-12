@@ -61,7 +61,7 @@ class MysqlDatabase
       begin
 
         # Use desc table to get the name, type, nullable, key, default,extra
-        rs = self.query_db("desc #{t.name}")
+        rs = self.query_db("desc #{t.table_name}")
         rs.each(:as => :array) do |td|
           f = MysqlField.new
           f.name = td[FIELD]
@@ -81,7 +81,7 @@ class MysqlDatabase
 
         # Now use create table to get the constraints
         sql = "select * from information_schema.referential_constraints where
-              constraint_schema = '#{@database}' and TABLE_NAME = '#{t.name}'"
+              constraint_schema = '#{@database}' and TABLE_NAME = '#{t.table_name}'"
         rs = self.query_db(sql)
 
         if rs.count
@@ -102,7 +102,7 @@ class MysqlDatabase
             # Get the referenced table's column
             sql = "select COLUMN_NAME, REFERENCED_COLUMN_NAME from information_schema.key_column_usage
                   where referenced_table_name = '#{td[REFERENCED_TABLE_NAME]}' and constraint_schema
-                  = '#{@database}' and TABLE_NAME = '#{t.name}'"
+                  = '#{@database}' and TABLE_NAME = '#{t.table_name}'"
             c.referenced_column_name = self.query_db(sql).first['REFERENCED_COLUMN_NAME']
             c.column_name = self.query_db(sql).first['COLUMN_NAME']
             # Push to table hash
