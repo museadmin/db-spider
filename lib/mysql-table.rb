@@ -13,17 +13,17 @@ class MysqlTable
     @keys = {}              # Column keys from desc table.
     @constraints = {}       # Table constraint
     @migrated = false
-    @diffs = {}
+    @diffs = []
   end
 
-  def test_diff(arg1, arg2, name, field)
+  def test_diff(arg1, arg2, type, name)
     unless arg1 == arg2
       diff = Difference.new
-      diff.obj1 = arg1
-      diff.obj2 = arg2
-      diff.field = field
-      diff.is_diff = true
-      @diffs[name] = diff
+      diff.vsrc = arg1
+      diff.vtgt = arg2
+      diff.name = name
+      diff.type = type
+      @diffs << diff
     end
   end
 
@@ -33,20 +33,20 @@ class MysqlTable
   # @param table [MysqlTable] The table for comparison
   def map_diffs(table, db_diff)
 
-    test_diff(self.table_name, table.table_name, 'table_name', nil)
-    test_diff(self.fields.size, table.fields.size, 'fields_size', nil)
+    test_diff(self.table_name, table.table_name, 'table_name', 'Metadata')
+    test_diff(self.fields.size, table.fields.size, 'fields_size', 'Metadata')
 
     @fields.values.each do |v|
       unless table.fields[v.name.to_sym].nil?
-        test_diff(v.name, table.fields[v.name.to_sym].name, 'field_name', v.name)
-        test_diff(v.type, table.fields[v.name.to_sym].type, 'field_type', v.name)
-        test_diff(v.null, table.fields[v.name.to_sym].null, 'field_nullable', v.name)
-        test_diff(v.default, table.fields[v.name.to_sym].default, 'field_default', v.name)
-        test_diff(v.extra, table.fields[v.name.to_sym].extra, 'field_extra', v.name)
+        test_diff(v.name, table.fields[v.name.to_sym].name, 'Name', v.name)
+        test_diff(v.type, table.fields[v.name.to_sym].type, 'Datatype', v.name)
+        test_diff(v.null, table.fields[v.name.to_sym].null, 'Is Nullable', v.name)
+        test_diff(v.default, table.fields[v.name.to_sym].default, 'Default Value', v.name)
+        test_diff(v.extra, table.fields[v.name.to_sym].extra, 'Extra', v.name)
 
         if COMPARE_KEYS # Keys in field object, not table
 
-           test_diff(self.keys.keys.size, table.keys.keys.size, 'number_of_keys', v.name) if COMPARE_KEY_COUNT
+           test_diff(self.keys.keys.size, table.keys.keys.size, 'Number of Keys', v.name) if COMPARE_KEY_COUNT
 
             if COMPARE_MUL_KEY
               if v.key == 'MUL' || table.fields[v.name.to_sym].key == 'MUL'
@@ -70,18 +70,18 @@ class MysqlTable
 
     # Compare constraints
     if COMPARE_CONSTRAINTS
-      test_diff(self.constraints.size, table.constraints.size, 'number_of_constraints', nil)
+      test_diff(self.constraints.size, table.constraints.size, 'Number of Constraints', 'Metadata')
 
       @constraints.each do |k,c|
         unless table.constraints[k.to_sym].nil?
           name = c.constraint_name
-          test_diff(c.constraint_name, table.constraints[k.to_sym].constraint_name, 'constraint_name', name)
-          test_diff(c.constraint_catalog, table.constraints[k.to_sym].constraint_catalog, 'constraint_catalog', name)
-          test_diff(c.unique_constraint_catalog, table.constraints[k.to_sym].unique_constraint_catalog, 'unique_constraint_catalog', name)
-          test_diff(c.match_option, table.constraints[k.to_sym].match_option, 'constraint_match_option', name)
-          test_diff(c.delete_rule, table.constraints[k.to_sym].delete_rule, 'constraint_delete_rule', name)
-          test_diff(c.table_name, table.constraints[k.to_sym].table_name, 'constraint_table_name', name)
-          test_diff(c.referenced_table_name, table.constraints[k.to_sym].referenced_table_name, 'constraint_referenced_table_name', name)
+          test_diff(c.constraint_name, table.constraints[k.to_sym].constraint_name, 'Constraint Name', name)
+          test_diff(c.constraint_catalog, table.constraints[k.to_sym].constraint_catalog, 'Constraint Catalog', name)
+          test_diff(c.unique_constraint_catalog, table.constraints[k.to_sym].unique_constraint_catalog, 'Unique Constraint Catalog', name)
+          test_diff(c.match_option, table.constraints[k.to_sym].match_option, 'Constraint Match Option', name)
+          test_diff(c.delete_rule, table.constraints[k.to_sym].delete_rule, 'Constraint Delete Rule', name)
+          test_diff(c.table_name, table.constraints[k.to_sym].table_name, 'Constraint Table Name', name)
+          test_diff(c.referenced_table_name, table.constraints[k.to_sym].referenced_table_name, 'Constraint Referenced Table Name', name)
         end
       end
     end

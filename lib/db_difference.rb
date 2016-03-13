@@ -24,6 +24,19 @@ class DbDifference
     @diffs = {}
   end
 
+  # Print a report of all table diffs
+  def print_table_diffs
+    self.diffs.each do |k,v|
+      puts "[#{k}]"
+      v.each do |d|
+        printf "\t%s\n", "name: #{d.name}"
+        printf "\t\t%s\n", "type: #{d.type}"
+        printf "\t\t%s\n", "vsrc: #{d.vsrc}"
+        printf "\t\t%s\n", "vtgt: #{d.vtgt}"
+      end
+    end
+  end
+
   # Capture all differences between two databases
   #
   # @param src_db [MysqlDatabase] The source database

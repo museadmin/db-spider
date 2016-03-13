@@ -1,6 +1,9 @@
 require 'json'
 require 'optparse'
 require 'ostruct'
+require 'highline/import'
+require 'logger'
+
 require_relative 'lib/env'
 require_relative 'lib/mysql-analytics'
 require_relative 'lib/mysql-constraint'
@@ -11,30 +14,37 @@ require_relative 'lib/mysql-field'
 require_relative 'lib/mysql-select'
 require_relative 'lib/mysql-table'
 require_relative 'lib/utilities'
+require_relative 'lib/menu_handler'
+require_relative 'lib/status_reports'
+require_relative 'lib/reporting'
 
 include Utils
 include DbHelper
 include MysqlAnalytics
 
 # Parse the Args
-options = OpenStruct.new
-OptionParser.new do |opt|
-  opt.on('-d', '--diff', 'Scan for diffs between source and target databases'
-        ){options.diff = true}
-  opt.on('-q', '--query', 'Generate SQL Queries for insert, update, select and delete for table -t'
-        ){options.generate = true}
-  opt.on('-s', '--spider SPIDER', 'Spider the databases <true|false>'
-        ){|s| options.spider = s}
-  opt.on('-t', '--table TABLE', 'Table to perform operation on. <All> for all tables'
-        ){|t| options.table = t}
-end.parse!
+# options = OpenStruct.new
+# OptionParser.new do |opt|
+#   opt.on('-d', '--diff', 'Scan for diffs between source and target databases'
+#         ){options.diff = true}
+#   opt.on('-q', '--query', 'Generate SQL Queries for insert, update, select and delete for table -t'
+#         ){options.generate = true}
+#   opt.on('-s', '--spider SPIDER', 'Spider the databases <true|false>'
+#         ){|s| options.spider = s}
+#   opt.on('-t', '--table TABLE', 'Table to perform operation on. <All> for all tables'
+#         ){|t| options.table = t}
+# end.parse!
 
 # Start
+@status = StatusReports.new('en.lang')
+@reporter = Reporting.new
 
 # get the ini file configuration settings
+@status.update(0)
 @ini_data = load_cfg
 
 # Create the DB Connection farm
+@status.update(1)
 @cxns = create_cxns(@ini_data)
 
 # Set source and destination DB
@@ -45,26 +55,27 @@ if @ini_data[:db2]['role'] == 'source'
   @db_tgt = @cxns[:db1]
 end
 
-# Spider the DB's
-if options.spider.nil? || options.spider == 'true'
-  spider_databases(@ini_data)
+# Always Spider the DB's
+@status.update(2)
+spider_databases(@ini_data)
+@db_diff = DbDifference.new(@db_src.database, @db_tgt.database)
+# Map the location of all table elements
+@status.update(3)
+@db_diff.locate_elements(@db_src, @db_tgt)
+# Map the differences between all tables that exist
+# in source and target DB's that differ
+@status.update(4)
+discover_diffs(@db_src, @db_tgt, @db_diff)
+
+# Main Menu Driven Loop
+begin
+  menu = MenuHandler.new(@reporter, @db_diff)
+  loop do
+    menu.main_menu
+  end
 end
 
-# Scan tables for @diffs
-if options.diff
-  # Object to hold all differences between databases
-  @db_diff = DbDifference.new(@db_src.database, @db_tgt.database)
-  # Map the location of all table elements
-  @db_diff.locate_elements(@db_src, @db_tgt)
-
-  # TODO Now we have all the mappings for the table elements
-  # > analytics > table == > table.diff
-  # Change to db_diff > table == > db_diff.diff
-  discover_diffs(@db_src, @db_tgt, @db_diff)
-end
-
-
-
+# TODO Generate SQL for migration
 # Execute the options passed in by the user
 if options.generate
   # Generate the SQL commands for a table

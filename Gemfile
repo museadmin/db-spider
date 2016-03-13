@@ -4,3 +4,4 @@ source "https://rubygems.org"
 gem 'mysql2'
 gem 'inifile'
 gem 'json'
+gem 'highline'
