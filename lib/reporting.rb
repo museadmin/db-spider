@@ -6,6 +6,6 @@ class Reporting
   # and that are different
   def table_diffs(db_diff)
     db_diff.print_table_diffs
-    gets
+    # gets
   end
 end

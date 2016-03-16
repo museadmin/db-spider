@@ -24,4 +24,17 @@ module Utils
 
   end
 
+  def print_msg(msg)
+    puts '=========================================='
+    puts msg
+    puts '=========================================='
+  end
+
+  def print_msg_and_clear(msg)
+    system 'clear'
+    puts '=========================================='
+    puts msg
+    puts '=========================================='
+  end
+
 end

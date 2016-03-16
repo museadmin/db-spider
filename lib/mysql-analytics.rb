@@ -38,4 +38,19 @@ module MysqlAnalytics
     end
   end
 
+  # Create a unique sorted list of all tables in both DB's
+  #
+  # @param src_db [MysqlDatabase] The source database
+  # @param tgt_db [MysqlDatabase] The target database
+  def get_sorted_list_of_tables(src_db, tgt_db)
+    l = []
+    src_db.tables.keys.each do |k|
+      l << k
+    end
+    tgt_db.tables.keys.each do |k|
+      l << k
+    end
+    l.uniq!.sort!
+  end
+
 end

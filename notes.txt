@@ -13,6 +13,8 @@ Each table has its own unique identifier; neither table inherits part of its pri
 
 mysqldump -umotdbuser -p -d mot2 | mysql -umotdbuser -p -D mot3
 
+mysql -umotdbuser -h dev -p -D mot3 < <(mysqldump -umotdbuser -h dev -p -d mot2)
+
 TODO
 
 Need to extend spidering to allow for missing objects on either side of diff. e.g.

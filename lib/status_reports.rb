@@ -14,19 +14,23 @@ class StatusReports
       raise Exception("ERROR: Reading Resource file (#{e.message})")
     end
 
-    def update(index)
-      begin
-        puts @resource_strings[index].sub(/\s*[\w']+\s+/, '')
 
-        unless @log_file.nil?
-          @logger.info @resource_strings[index].sub(/\s*[\w']+\s+/, '')
-        end
-      rescue Exception => e
-        raise Exception("ERROR: Referencing Resource file (#{e.message})")
+  end
+
+  def update(index)
+    begin
+      puts @resource_strings[index].sub(/\s*[\w']+\s+/, '')
+
+      unless @log_file.nil?
+        @logger.info @resource_strings[index].sub(/\s*[\w']+\s+/, '')
       end
-
+    rescue Exception => e
+      raise Exception("ERROR: Referencing Resource file (#{e.message})")
     end
+  end
 
+  def get_resource_string(index)
+    @resource_strings[index].sub(/\s*[\w']+\s+/, '')
   end
 
 end

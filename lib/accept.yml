@@ -1,0 +1,40 @@
+[databases]
+  count = 2
+
+[db1]
+  host = dev.motdev.org.uk
+  adapter = mysql
+  database = mot
+  username = motdbuser
+  password = password
+  schema_version = 1
+  rdbms_version = ce
+  port = 3306
+  role = source
+
+[db2]
+  host = dev.motdev.org.uk
+  adapter = mysql
+  database = mot3
+  username = motdbuser
+  password = password
+  schema_version = 2
+  rdbms_version = ce
+  port = 3306
+  role = destination
+
+[rdbms]
+  rdbms = mysql
+
+[mysql]
+  field = 0
+  type = 1
+  null = 2
+  key = 3
+  default = 4
+  extra = 5
+
+# Log levels 1 - Screen only, 2 - Screen and log file
+[logging]
+  log_level = 1
+  log_file = db-spider.log
