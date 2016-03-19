@@ -49,7 +49,7 @@ class MenuHandler
           menu.choice(:Table_detail){
             sorted_list = get_sorted_list_of_tables(@db_src, @db_tgt)
             print_msg('Enter the name of a table')
-            table_name = @list_manager.get_list_item(sorted_list)
+            table_name = @list_manager.autocomplete_list_item(sorted_list)
 
             # TODO method to write out tabel details
 
